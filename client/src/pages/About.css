@@ -1,0 +1,190 @@
+/* ─── Hero ────────────────────────────────────────────────────────────────── */
+.about__hero {
+  background: var(--navy-950);
+  padding: 88px 24px 96px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.about__hero-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.about__hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.about__eyebrow {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold-400);
+  margin-bottom: 16px;
+  opacity: 0.85;
+}
+
+.about__title {
+  font-size: clamp(36px, 5vw, 56px);
+  color: var(--white);
+  margin-bottom: 16px;
+}
+
+.about__sub {
+  color: var(--slate-400);
+  font-size: 17px;
+  font-weight: 300;
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+/* ─── Section ─────────────────────────────────────────────────────────────── */
+.about__section-head {
+  margin-bottom: 32px;
+}
+
+.about__section-sub {
+  color: var(--slate-500);
+  font-size: 15px;
+  margin-top: 8px;
+}
+
+/* ─── Features Grid ───────────────────────────────────────────────────────── */
+.about__features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 48px;
+}
+
+.about__feature-card {
+  background: var(--white);
+  border: 1.5px solid var(--cream-200);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  transition: transform var(--duration-base) var(--ease-out),
+              box-shadow var(--duration-base) var(--ease-out);
+}
+
+.about__feature-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.about__feature-icon {
+  font-size: 26px;
+  display: block;
+  margin-bottom: 14px;
+}
+
+.about__feature-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--navy-900);
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+
+.about__feature-desc {
+  font-size: 14px;
+  color: var(--slate-500);
+  line-height: 1.65;
+}
+
+/* ─── API Table ───────────────────────────────────────────────────────────── */
+.about__api-card {
+  background: var(--white);
+  border: 1.5px solid var(--cream-200);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  box-shadow: var(--shadow);
+}
+
+.about__api-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.about__api-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--gold-500);
+  flex-shrink: 0;
+}
+
+.about__api-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.about__api-table thead tr {
+  border-bottom: 2px solid var(--cream-200);
+}
+
+.about__api-table th {
+  text-align: left;
+  padding: 10px 0 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--slate-500);
+}
+
+.about__api-table tbody tr {
+  border-bottom: 1px solid var(--cream-100);
+  transition: background 150ms;
+}
+
+.about__api-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.about__api-table tbody tr:hover {
+  background: var(--cream-50);
+}
+
+.about__api-table td {
+  padding: 14px 0;
+  vertical-align: middle;
+}
+
+.about__api-table td:not(:last-child) {
+  padding-right: 20px;
+}
+
+.about__api-path {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--navy-800);
+  background: var(--cream-100);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.about__api-desc {
+  color: var(--slate-500);
+}
+
+/* ─── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .about__features-grid { grid-template-columns: 1fr; }
+  .about__api-card { padding: 20px; }
+  .about__api-table th:last-child,
+  .about__api-table td:last-child { display: none; }
+}

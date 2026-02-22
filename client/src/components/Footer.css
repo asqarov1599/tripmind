@@ -1,0 +1,40 @@
+.footer {
+  margin-top: auto;
+  border-top: 1px solid var(--cream-200);
+  padding: 24px;
+}
+
+.footer__inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.footer__brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--navy-800);
+}
+
+.footer__divider {
+  color: var(--cream-200);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.footer__text {
+  color: var(--slate-500);
+  font-size: 13px;
+}
+
+.footer__code {
+  background: var(--cream-200);
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--navy-800);
+}

@@ -1,0 +1,285 @@
+/* ─── Buttons ─────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 12px 28px;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  transition: all var(--duration-base) var(--ease-out);
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0);
+  transition: background var(--duration-fast);
+}
+
+.btn:not(:disabled):active::after {
+  background: rgba(255,255,255,0.1);
+}
+
+/* Gold / Primary */
+.btn--gold {
+  background: var(--gold-500);
+  color: var(--navy-900);
+}
+.btn--gold:not(:disabled):hover {
+  background: var(--gold-400);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-gold);
+}
+
+/* Navy / Secondary */
+.btn--navy {
+  background: var(--navy-800);
+  color: var(--white);
+}
+.btn--navy:not(:disabled):hover {
+  background: var(--navy-700);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Outline */
+.btn--outline {
+  background: transparent;
+  border: 1.5px solid var(--navy-700);
+  color: var(--navy-800);
+}
+.btn--outline:not(:disabled):hover {
+  background: var(--navy-900);
+  border-color: var(--navy-900);
+  color: var(--white);
+}
+
+/* Ghost */
+.btn--ghost {
+  background: transparent;
+  color: var(--slate-500);
+  padding: 8px 16px;
+}
+.btn--ghost:not(:disabled):hover {
+  background: var(--cream-200);
+  color: var(--navy-800);
+}
+
+/* Sizes */
+.btn--sm {
+  padding: 8px 18px;
+  font-size: 13px;
+  border-radius: var(--radius-sm);
+}
+
+.btn--lg {
+  padding: 16px 40px;
+  font-size: 17px;
+  border-radius: var(--radius-lg);
+}
+
+.btn--full {
+  width: 100%;
+  padding: 16px;
+  font-size: 16px;
+}
+
+/* ─── Form Elements ───────────────────────────────────────────────────────── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.form-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--slate-500);
+}
+
+.form-input,
+.form-select {
+  padding: 12px 16px;
+  background: var(--white);
+  border: 1.5px solid var(--cream-200);
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--navy-900);
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+  outline: none;
+  width: 100%;
+  -webkit-appearance: none;
+}
+
+.form-input::placeholder {
+  color: var(--slate-400);
+}
+
+.form-input:focus,
+.form-select:focus {
+  border-color: var(--gold-500);
+  box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.12);
+}
+
+.form-input--lg {
+  padding: 14px 18px;
+  font-size: 16px;
+}
+
+.form-row {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.form-row .form-group {
+  flex: 1;
+  min-width: 150px;
+}
+
+/* ─── Cards ──────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  border: 1.5px solid transparent;
+}
+
+.card--interactive {
+  cursor: pointer;
+  transition: box-shadow var(--duration-base) var(--ease-out),
+              transform var(--duration-base) var(--ease-out),
+              border-color var(--duration-base);
+}
+
+.card--interactive:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+}
+
+.card--selected {
+  border-color: var(--gold-500);
+  background: #fffef8;
+  box-shadow: 0 4px 20px rgba(212, 168, 67, 0.15);
+}
+
+/* ─── Badges ─────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge--direct {
+  background: rgba(46, 204, 137, 0.1);
+  color: var(--green);
+}
+
+.badge--stop {
+  background: rgba(232, 130, 58, 0.1);
+  color: var(--orange);
+}
+
+.badge--method-get {
+  background: rgba(46, 204, 137, 0.1);
+  color: var(--green);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.badge--method-post {
+  background: rgba(232, 130, 58, 0.1);
+  color: var(--orange);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+/* ─── Divider ─────────────────────────────────────────────────────────────── */
+.divider {
+  height: 1px;
+  background: var(--cream-200);
+  border: none;
+}
+
+/* ─── Tag ─────────────────────────────────────────────────────────────────── */
+.tag {
+  display: inline-block;
+  background: var(--navy-900);
+  color: var(--white);
+  padding: 5px 14px;
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+/* ─── Spinner ─────────────────────────────────────────────────────────────── */
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--cream-200);
+  border-top-color: var(--gold-500);
+  border-radius: 50%;
+  animation: spin 0.65s linear infinite;
+}
+
+.spinner--sm {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
+.loading-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0;
+  gap: var(--space-4);
+}
+
+.loading-center p {
+  color: var(--slate-500);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* ─── Stars Rating ────────────────────────────────────────────────────────── */
+.stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--gold-500);
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.stars__score {
+  color: var(--slate-500);
+  font-size: 13px;
+  font-weight: 500;
+  margin-left: 2px;
+}
