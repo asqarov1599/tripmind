@@ -1,7 +1,7 @@
-/* ─── Hero ────────────────────────────────────────────────────────────────── */
+/* ─── Hero ── */
 .about__hero {
   background: var(--navy-950);
-  padding: 88px 24px 96px;
+  padding: 96px 24px 104px;
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -10,10 +10,19 @@
 .about__hero-bg {
   position: absolute;
   inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+.about__hero-glow {
+  position: absolute;
+  width: 600px;
+  height: 300px;
+  top: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center,
+    rgba(212, 168, 67, 0.10) 0%,
+    transparent 70%);
 }
 
 .about__hero-content {
@@ -25,31 +34,34 @@
   display: inline-block;
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--gold-400);
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   opacity: 0.85;
 }
 
 .about__title {
-  font-size: clamp(36px, 5vw, 56px);
+  font-size: clamp(32px, 5vw, 52px);
   color: var(--white);
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .about__sub {
   color: var(--slate-400);
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 300;
-  max-width: 520px;
+  max-width: 540px;
   margin: 0 auto;
-  line-height: 1.7;
+  line-height: 1.75;
 }
 
-/* ─── Section ─────────────────────────────────────────────────────────────── */
+/* ─── Section ── */
 .about__section-head {
-  margin-bottom: 32px;
+  margin-bottom: 36px;
 }
 
 .about__section-sub {
@@ -58,12 +70,71 @@
   margin-top: 8px;
 }
 
-/* ─── Features Grid ───────────────────────────────────────────────────────── */
+/* ─── How it works steps ── */
+.about__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 56px;
+  border: 1.5px solid var(--cream-200);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: var(--white);
+}
+
+.about__step {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 28px 32px;
+  border-bottom: 1.5px solid var(--cream-100);
+  transition: background 200ms;
+}
+
+.about__step:last-child {
+  border-bottom: none;
+}
+
+.about__step:hover {
+  background: var(--cream-50);
+}
+
+.about__step-number {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold-500);
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+  padding-top: 2px;
+  min-width: 28px;
+}
+
+.about__step-body {
+  flex: 1;
+}
+
+.about__step-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--navy-900);
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.about__step-desc {
+  font-size: 14px;
+  color: var(--slate-500);
+  line-height: 1.65;
+}
+
+/* ─── Features Grid ── */
 .about__features-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 16px;
-  margin-bottom: 48px;
+  margin-bottom: 56px;
 }
 
 .about__feature-card {
@@ -81,9 +152,15 @@
 }
 
 .about__feature-icon {
-  font-size: 26px;
-  display: block;
-  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: var(--navy-900);
+  border-radius: 12px;
+  color: var(--gold-400);
+  margin-bottom: 16px;
 }
 
 .about__feature-title {
@@ -101,90 +178,42 @@
   line-height: 1.65;
 }
 
-/* ─── API Table ───────────────────────────────────────────────────────────── */
-.about__api-card {
-  background: var(--white);
-  border: 1.5px solid var(--cream-200);
+/* ─── Closing note ── */
+.about__closing {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+.about__closing-inner {
+  background: linear-gradient(135deg, var(--navy-900) 0%, var(--navy-800) 100%);
   border-radius: var(--radius-xl);
-  padding: 32px;
-  box-shadow: var(--shadow);
+  padding: 40px 48px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
-.about__api-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
+.about__closing-inner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 50%, rgba(212,168,67,0.07) 0%, transparent 60%);
 }
 
-.about__api-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--gold-500);
-  flex-shrink: 0;
+.about__closing-text {
+  position: relative;
+  color: var(--slate-400);
+  font-size: 15px;
+  line-height: 1.75;
+  font-weight: 300;
+  max-width: 520px;
+  margin: 0 auto;
 }
 
-.about__api-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.about__api-table thead tr {
-  border-bottom: 2px solid var(--cream-200);
-}
-
-.about__api-table th {
-  text-align: left;
-  padding: 10px 0 12px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--slate-500);
-}
-
-.about__api-table tbody tr {
-  border-bottom: 1px solid var(--cream-100);
-  transition: background 150ms;
-}
-
-.about__api-table tbody tr:last-child {
-  border-bottom: none;
-}
-
-.about__api-table tbody tr:hover {
-  background: var(--cream-50);
-}
-
-.about__api-table td {
-  padding: 14px 0;
-  vertical-align: middle;
-}
-
-.about__api-table td:not(:last-child) {
-  padding-right: 20px;
-}
-
-.about__api-path {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--navy-800);
-  background: var(--cream-100);
-  padding: 3px 8px;
-  border-radius: var(--radius-sm);
-}
-
-.about__api-desc {
-  color: var(--slate-500);
-}
-
-/* ─── Responsive ──────────────────────────────────────────────────────────── */
+/* ─── Responsive ── */
 @media (max-width: 640px) {
   .about__features-grid { grid-template-columns: 1fr; }
-  .about__api-card { padding: 20px; }
-  .about__api-table th:last-child,
-  .about__api-table td:last-child { display: none; }
+  .about__step { padding: 22px 20px; }
+  .about__closing-inner { padding: 28px 24px; }
 }
