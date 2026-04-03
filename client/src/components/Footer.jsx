@@ -6,7 +6,9 @@ export default function Footer() {
       <div className="footer__inner">
         <span className="footer__brand">tripmind</span>
         <span className="footer__divider">·</span>
-        <span className="footer__text">AI-Powered Travel Planning</span>
+        <span className="footer__text">Travel smarter, worry less</span>
+        <span className="footer__divider">·</span>
+        <span className="footer__text footer__text--muted">Built in Tashkent</span>
       </div>
     </footer>
   );
