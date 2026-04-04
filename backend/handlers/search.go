@@ -68,7 +68,7 @@ func SearchHandler(c *gin.Context) {
 		return
 	}
 
-	numNights := int(retDate.Sub(depDate).Hours() / 24)
+	//numNights := int(retDate.Sub(depDate).Hours() / 24)
 
 	// ── Try Amadeus live data ──────────────────────────────────────────────────
 	var flights []services.Flight
