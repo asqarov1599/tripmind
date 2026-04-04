@@ -1,38 +1,49 @@
-/* ─── Header ──────────────────────────────────────────────────────────────── */
+/* ─── Page Header ─────────────────────────────────────────────────────────── */
 .results__header {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
 }
 
 .results__route {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
-.results__route-arrow {
+.route-chip {
+  background: var(--navy-900);
+  color: var(--gold-400);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.05em;
+}
+
+.route-arrow {
   color: var(--gold-500);
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 300;
 }
 
-.results__route-meta {
+.route-meta {
   color: var(--slate-500);
-  font-size: 14px;
-  margin-left: 4px;
+  font-size: 13px;
+  font-weight: 400;
 }
 
 /* ─── AI Box ──────────────────────────────────────────────────────────────── */
 .ai-box {
   background: linear-gradient(135deg, var(--navy-900) 0%, var(--navy-700) 100%);
   border-radius: var(--radius-lg);
-  padding: 28px 32px;
-  margin-bottom: 40px;
-  border: 1px solid rgba(212, 168, 67, 0.15);
+  padding: 24px 28px;
+  margin-bottom: 36px;
+  border: 1px solid rgba(212, 168, 67, 0.18);
   position: relative;
   overflow: hidden;
 }
@@ -40,77 +51,100 @@
 .ai-box::before {
   content: '';
   position: absolute;
-  top: -40px;
-  right: -40px;
-  width: 160px;
-  height: 160px;
-  background: radial-gradient(circle, rgba(212, 168, 67, 0.08) 0%, transparent 70%);
+  top: -50px;
+  right: -50px;
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(212, 168, 67, 0.07) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .ai-box__header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 10px;
+  margin-bottom: 14px;
 }
 
 .ai-box__icon {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   background: linear-gradient(135deg, var(--gold-500), var(--gold-600));
-  border-radius: 10px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
-  animation: goldGlow 3s ease-in-out infinite;
+  font-size: 15px;
   flex-shrink: 0;
 }
 
 .ai-box__title {
-  font-family: var(--font-display);
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--white);
-  letter-spacing: -0.01em;
+  letter-spacing: 0.01em;
+}
+
+.ai-box__badge {
+  margin-left: auto;
+  background: rgba(232, 197, 90, 0.15);
+  color: var(--gold-400);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 99px;
+  border: 1px solid rgba(232, 197, 90, 0.25);
 }
 
 .ai-box__body {
-  font-size: 14px;
-  line-height: 1.75;
-  color: var(--slate-200);
-  white-space: pre-wrap;
   position: relative;
 }
 
-/* ─── Section Header ──────────────────────────────────────────────────────── */
+.ai-para {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--slate-200);
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+
+.ai-para:last-child {
+  margin-bottom: 0;
+}
+
+.ai-para strong {
+  color: var(--gold-300);
+  font-weight: 600;
+}
+
+/* ─── Section ─────────────────────────────────────────────────────────────── */
 .results__section {
-  margin-bottom: 48px;
+  margin-bottom: 40px;
 }
 
 .results__section-head {
   display: flex;
   align-items: baseline;
-  gap: 14px;
-  margin-bottom: 16px;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .results__list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
-/* ─── Result Cards (shared) ───────────────────────────────────────────────── */
+/* ─── Result Card Base ────────────────────────────────────────────────────── */
 .result-card {
   background: var(--white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   border: 1.5px solid var(--cream-200);
-  padding: 20px 24px;
+  padding: 18px 20px;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   position: relative;
   cursor: pointer;
   transition:
@@ -120,147 +154,229 @@
 }
 
 .result-card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
-  border-color: var(--cream-200);
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
 }
 
 .result-card.card--selected {
   border-color: var(--gold-500);
-  background: #fffef8;
-  box-shadow: 0 4px 20px rgba(212, 168, 67, 0.12);
+  background: #fffef9;
+  box-shadow: 0 4px 20px rgba(212, 168, 67, 0.14);
 }
 
-.result-card__check,
-.flight-card__check {
+/* check badge */
+.card__check-badge {
   position: absolute;
-  top: 14px;
-  right: 16px;
-  width: 22px;
-  height: 22px;
+  top: 12px;
+  right: 14px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: var(--gold-500);
   color: var(--navy-900);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  transition: opacity var(--duration-fast);
 }
 
-.card--selected .result-card__check,
-.card--selected .flight-card__check {
-  opacity: 1;
-}
-
-.result-card__price-amount {
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 800;
+/* shared price atoms */
+.price-amount {
+  font-size: 22px;
+  font-weight: 700;
   color: var(--navy-900);
-  letter-spacing: -0.03em;
-  line-height: 1.1;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
 }
 
-.result-card__price-label {
+.price-label {
   font-size: 11px;
-  color: var(--slate-500);
-  font-weight: 500;
+  color: var(--slate-400);
+  font-weight: 400;
   margin-top: 2px;
 }
 
-/* ─── Flight Card specifics ───────────────────────────────────────────────── */
-.flight-card__airline {
-  min-width: 110px;
-  text-align: center;
-  flex-shrink: 0;
+.price-total-hint {
+  font-size: 11px;
+  color: var(--slate-500);
+  font-weight: 500;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--cream-200);
 }
 
-.flight-card__airline-name {
-  font-weight: 700;
+.price-na {
   font-size: 14px;
-  color: var(--navy-900);
-  margin-bottom: 6px;
+  color: var(--slate-400);
 }
 
-.flight-card__route {
+/* badge */
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 99px;
+  letter-spacing: 0.03em;
+  margin-top: 6px;
+}
+
+.badge--direct {
+  background: rgba(46, 204, 137, 0.12);
+  color: #1a9e67;
+}
+
+.badge--stop {
+  background: rgba(232, 130, 58, 0.12);
+  color: #c46020;
+}
+
+/* ─── Flight Card ─────────────────────────────────────────────────────────── */
+.result-card--flight {
+  align-items: stretch;
+}
+
+.fc__airline-col {
+  min-width: 100px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding-right: 14px;
+  border-right: 1px solid var(--cream-200);
+}
+
+.fc__airline-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--navy-900);
+  line-height: 1.3;
+  margin-bottom: 2px;
+}
+
+.fc__flight-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--slate-400);
+  margin-bottom: 2px;
+}
+
+.fc__legs {
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 7px;
+  padding: 0 4px;
+}
+
+.fc__leg {
+  display: flex;
+  align-items: center;
   gap: 8px;
 }
 
-.flight-card__leg {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.flight-card__leg-label {
+.fc__leg-tag {
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   color: var(--slate-400);
-  min-width: 60px;
+  min-width: 26px;
 }
 
-.flight-card__leg-time {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--navy-900);
+.fc__time {
   font-family: var(--font-mono);
-  min-width: 76px;
-}
-
-.flight-card__leg-arrow {
-  color: var(--gold-500);
   font-size: 14px;
+  font-weight: 500;
+  color: var(--navy-900);
+  min-width: 72px;
 }
 
-.flight-card__leg-dur {
+.fc__arrow {
+  color: var(--gold-500);
+  font-size: 13px;
+}
+
+.fc__dur {
   font-size: 12px;
   color: var(--slate-400);
-  font-weight: 500;
+  font-weight: 400;
 }
 
-.flight-card__price {
+.fc__price-col {
   text-align: right;
-  min-width: 90px;
+  min-width: 84px;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
 }
 
-/* ─── Hotel Card specifics ────────────────────────────────────────────────── */
-.hotel-card__info {
+/* ─── Hotel Card ──────────────────────────────────────────────────────────── */
+.hc__info {
   flex: 1;
 }
 
-.hotel-card__name {
-  font-size: 16px;
+.hc__name {
+  font-size: 15px;
   font-weight: 700;
   color: var(--navy-900);
   margin-bottom: 4px;
+  text-transform: capitalize;
+  /* Amadeus returns ALL CAPS sometimes — force title-case via CSS */
+  text-transform: capitalize;
+  /* But CSS capitalize only works on first letters. Use JS workaround via class. */
 }
 
-.hotel-card__location {
+/* Override: if name is all-caps (common from Amadeus), still looks OK with font */
+.result-card--hotel .hc__name {
+  text-transform: none; /* let JS handle it if needed */
+  font-size: 15px;
+}
+
+.hc__location {
   font-size: 13px;
   color: var(--slate-500);
   display: flex;
   align-items: center;
   gap: 4px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
-.hotel-card__location-icon {
+.hc__pin {
   font-size: 12px;
 }
 
-.result-card__price-block {
+.hc__stars {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hc__rating-num {
+  font-size: 12px;
+  color: var(--slate-500);
+  font-weight: 500;
+}
+
+.hc__price-warn {
+  font-size: 11px;
+  color: var(--orange);
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.hc__price-col {
   text-align: right;
   min-width: 90px;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
 }
 
 /* ─── Confirm Panel ───────────────────────────────────────────────────────── */
@@ -268,18 +384,17 @@
   background: var(--white);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
-  padding: 36px 40px;
+  padding: 32px 36px;
   border: 1.5px solid var(--cream-200);
   margin-top: 8px;
 }
 
 .confirm-panel__title {
-  font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   color: var(--navy-900);
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .confirm-panel__rows {
@@ -291,58 +406,185 @@
 .confirm-panel__row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 12px 0;
+  align-items: flex-start;
+  padding: 11px 0;
   border-bottom: 1px solid var(--cream-200);
+  gap: 16px;
 }
 
 .confirm-panel__row-label {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--slate-500);
+  font-weight: 400;
+  flex-shrink: 0;
 }
 
 .confirm-panel__row-value {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--navy-900);
+  text-align: right;
 }
 
 .confirm-panel__total {
   background: var(--navy-900);
   border-radius: var(--radius-lg);
-  padding: 18px 24px;
-  margin-top: 16px;
+  padding: 16px 22px;
+  margin-top: 14px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .confirm-panel__total-label {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--slate-400);
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .confirm-panel__total-value {
-  font-family: var(--font-display);
-  font-size: 28px;
-  font-weight: 800;
+  font-size: 26px;
+  font-weight: 700;
   color: var(--white);
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
 }
 
 .confirm-panel__actions {
   display: flex;
   gap: 12px;
-  margin-top: 24px;
+  margin-top: 22px;
   flex-wrap: wrap;
+}
+
+/* ─── Form inputs inside confirm ─────────────────────────────────────────── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--navy-900);
+}
+
+.form-label--opt {
+  color: var(--slate-400);
+  font-weight: 400;
+}
+
+.form-input {
+  border: 1.5px solid var(--cream-200);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--navy-900);
+  background: var(--white);
+  outline: none;
+  transition: border-color var(--duration-fast);
+}
+
+.form-input:focus {
+  border-color: var(--gold-500);
+}
+
+/* ─── Buttons ─────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 22px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition:
+    background var(--duration-fast),
+    transform var(--duration-fast),
+    opacity var(--duration-fast);
+  font-family: var(--font-body);
+}
+
+.btn:active { transform: scale(0.98); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn--gold {
+  background: var(--gold-500);
+  color: var(--navy-900);
+}
+
+.btn--gold:hover:not(:disabled) { background: var(--gold-400); }
+
+.btn--navy {
+  background: var(--navy-900);
+  color: var(--white);
+}
+
+.btn--navy:hover:not(:disabled) { background: var(--navy-700); }
+
+.btn--ghost {
+  background: transparent;
+  color: var(--navy-900);
+  border: 1.5px solid var(--cream-200);
+}
+
+.btn--ghost:hover { background: var(--cream-100); }
+
+.btn--sm { padding: 7px 14px; font-size: 13px; }
+
+/* ─── Spinner ─────────────────────────────────────────────────────────────── */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(13,24,37,0.25);
+  border-top-color: var(--navy-900);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.spinner--sm { width: 14px; height: 14px; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* ─── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
-  .result-card { flex-wrap: wrap; gap: 14px; }
-  .flight-card__price,
-  .result-card__price-block { text-align: left; min-width: auto; }
-  .confirm-panel { padding: 24px 20px; }
-  .results__route-meta { display: none; }
+  .result-card {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .fc__airline-col {
+    border-right: none;
+    border-bottom: 1px solid var(--cream-200);
+    padding-right: 0;
+    padding-bottom: 10px;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .fc__price-col,
+  .hc__price-col {
+    text-align: left;
+    min-width: auto;
+  }
+
+  .confirm-panel {
+    padding: 22px 18px;
+  }
+
+  .route-meta {
+    display: none;
+  }
+
+  .ai-box {
+    padding: 18px 20px;
+  }
 }
