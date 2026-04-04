@@ -141,8 +141,12 @@ func SearchHandler(c *gin.Context) {
 		req.Passengers, flights, hotels, isFallback,
 	)
 	if err != nil {
-		log.Printf("⚠️  AI recommendation failed: %v — using fallback text", err)
-		aiSummary = services.FallbackRecommendation(req.Budget, flights, hotels, numNights)
+		log.Printf("⚠️  AI recommendation failed: %v — using smart built-in summary", err)
+		aiSummary = services.SmartFallbackRecommendation(
+			req.Budget, req.Origin, req.Destination,
+			req.DepartureDate, req.ReturnDate,
+			req.Passengers, flights, hotels,
+		)
 	}
 
 	// ── Persist to DB ─────────────────────────────────────────────────────────
