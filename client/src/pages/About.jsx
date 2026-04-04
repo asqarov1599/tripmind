@@ -1,3 +1,11 @@
+import {
+  Shield,
+  Clock,
+  MessageSquare,
+  FileText,
+  Globe,
+  DollarSign,
+} from "lucide-react";
 import "./About.css";
 
 const HOW_IT_WORKS = [
@@ -25,63 +33,32 @@ const HOW_IT_WORKS = [
 
 const WHY_CARDS = [
   {
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-      </svg>
-    ),
+    icon: <Shield size={22} />,
     title: "No hidden surprises",
     desc: "Prices you see include the full trip cost — flights plus hotel nights — so your budget stays yours.",
   },
   {
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <polyline points="12 6 12 12 16 14"/>
-      </svg>
-    ),
+    icon: <Clock size={22} />,
     title: "Results in seconds",
     desc: "No endless loading bars. TripMind gives you real results fast, so you can focus on the exciting part — planning your trip.",
   },
   {
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-      </svg>
-    ),
+    icon: <MessageSquare size={22} />,
     title: "Honest recommendations",
     desc: "The AI explains its thinking — why it picked a certain flight or hotel — so you stay in control of your decisions.",
   },
   {
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-        <polyline points="14 2 14 8 20 8"/>
-        <line x1="16" y1="13" x2="8" y2="13"/>
-        <line x1="16" y1="17" x2="8" y2="17"/>
-      </svg>
-    ),
+    icon: <FileText size={22} />,
     title: "Trip PDF in one click",
     desc: "Your itinerary — flights, hotel, dates, costs — packaged into a clean PDF you can share, print, or keep for yourself.",
   },
   {
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="2" y1="12" x2="22" y2="12"/>
-        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-      </svg>
-    ),
+    icon: <Globe size={22} />,
     title: "Built for real routes",
     desc: "Popular routes from Central Asia to Europe and the Middle East — the trips real people actually want to take.",
   },
   {
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="12" y1="1" x2="12" y2="23"/>
-        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-      </svg>
-    ),
+    icon: <DollarSign size={22} />,
     title: "Budget first, always",
     desc: "Set your budget at the start. TripMind never shows you options you can't afford — your limit is front and centre.",
   },

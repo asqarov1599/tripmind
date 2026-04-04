@@ -28,7 +28,6 @@
   padding: 0;
   transition: opacity 200ms;
 }
-
 .navbar__logo:hover { opacity: 0.8; }
 
 .navbar__logo-mark {
@@ -40,7 +39,7 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
-  font-weight: 800;
+  font-weight: 700;
   font-size: 18px;
   color: var(--navy-900);
   line-height: 1;
@@ -51,7 +50,7 @@
   font-size: 20px;
   font-weight: 400;
   color: var(--white);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
 .navbar__logo-text strong {
@@ -69,7 +68,7 @@
   border: none;
   cursor: pointer;
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: var(--text-base);
   font-weight: 500;
   color: var(--slate-400);
   padding: 7px 18px;

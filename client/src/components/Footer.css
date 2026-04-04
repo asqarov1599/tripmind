@@ -15,7 +15,7 @@
 .footer__brand {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--text-base);
   color: var(--navy-800);
 }
 
@@ -27,7 +27,11 @@
 
 .footer__text {
   color: var(--slate-500);
-  font-size: 13px;
+  font-size: var(--text-sm);
+}
+
+.footer__text--muted {
+  color: var(--slate-400);
 }
 
 .footer__code {
@@ -35,6 +39,6 @@
   padding: 1px 7px;
   border-radius: 4px;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--navy-800);
 }
