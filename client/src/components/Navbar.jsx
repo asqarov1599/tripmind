@@ -5,7 +5,7 @@ export default function Navbar({ currentPage, onNavigate }) {
     <header className="navbar">
       <div className="navbar__inner">
         <button className="navbar__logo" onClick={() => onNavigate("home")}>
-          <span className="navbar__logo-mark">YA</span>
+          <span className="navbar__logo-mark">T</span>
           <span className="navbar__logo-text">
             trip<strong>mind</strong>
           </span>
