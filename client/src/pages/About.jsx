@@ -127,7 +127,7 @@ export default function About() {
       <section className="about__closing animate-fadeUp">
         <div className="about__closing-inner">
           <p className="about__closing-text">
-            TripMind was built as a final-year project at Singapore University of Management in Tashkent,
+            TripMind was built as a final-year project at Management Development Institute of Singapore in Tashkent,
             with a simple goal: make travel planning feel effortless.
           </p>
         </div>
