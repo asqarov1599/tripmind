@@ -29,13 +29,16 @@ async function request(endpoint, options = {}) {
  * @param {number} payload.passengers - Number of passengers
  */
 export async function searchFlightsAndHotels(payload) {
+  const body = {
+    ...payload,
+    budget: Number(payload.budget),
+    passengers: Number(payload.passengers),
+  };
+  // Only include return_origin if it's a non-empty string
+  if (!body.return_origin) delete body.return_origin;
   return request("/search", {
     method: "POST",
-    body: JSON.stringify({
-      ...payload,
-      budget: Number(payload.budget),
-      passengers: Number(payload.passengers),
-    }),
+    body: JSON.stringify(body),
   });
 }
 

@@ -8,6 +8,7 @@ import {
   Hotel,
   Lightbulb,
   FileText,
+  GitBranch,
 } from "lucide-react";
 import "./Home.css";
 
@@ -18,18 +19,24 @@ const POPULAR_ROUTES = [
   { origin: "TAS", dest: "LHR", label: "London" },
 ];
 
-function validate(form) {
+function validate(form, isMultiCity) {
   if (!form.origin || form.origin.length < 3) return "Enter a valid origin airport code (3 letters).";
   if (!form.destination || form.destination.length < 3) return "Enter a valid destination airport code (3 letters).";
   if (!form.departure_date) return "Please select a departure date.";
   if (!form.return_date) return "Please select a return date.";
   if (form.return_date <= form.departure_date) return "Return date must be after departure date.";
   if (!form.budget || Number(form.budget) <= 0) return "Enter a valid budget amount (USD).";
+  if (isMultiCity && form.return_origin && form.return_origin.length !== 3)
+    return "Return departure airport must be exactly 3 letters (e.g. CDG).";
   return null;
 }
 
 export default function Home({ onResults }) {
-  const [form, setForm] = useState({ origin: "", destination: "", departure_date: "", return_date: "", budget: "", passengers: "1" });
+  const [form, setForm] = useState({
+    origin: "", destination: "", departure_date: "", return_date: "",
+    budget: "", passengers: "1", return_origin: "",
+  });
+  const [isMultiCity, setIsMultiCity] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -37,13 +44,15 @@ export default function Home({ onResults }) {
   const fillRoute = (origin, dest) => setForm((prev) => ({ ...prev, origin, destination: dest }));
 
   const handleSearch = async () => {
-    const err = validate(form);
+    const err = validate(form, isMultiCity);
     if (err) { setError(err); return; }
     setError(null);
     setLoading(true);
     try {
-      const data = await searchFlightsAndHotels(form);
-      onResults(data, form);
+      const payload = { ...form };
+      if (!isMultiCity || !form.return_origin) delete payload.return_origin;
+      const data = await searchFlightsAndHotels(payload);
+      onResults(data, { ...form, isMultiCity });
     } catch (e) {
       setError(e.message);
     } finally {
@@ -86,6 +95,24 @@ export default function Home({ onResults }) {
             <h2>Where would you like to go?</h2>
           </div>
 
+          {/* Multi-city toggle */}
+          <div style={{ marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
+            <button
+              className={`btn btn--sm ${isMultiCity ? "btn--gold" : "btn--ghost"}`}
+              style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}
+              onClick={() => setIsMultiCity((v) => !v)}
+              title="Fly into one city, return from another"
+            >
+              <GitBranch size={14} />
+              Multi-city return
+            </button>
+            {isMultiCity && (
+              <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                Fly to {form.destination || "your destination"}, return home from a different city
+              </span>
+            )}
+          </div>
+
           <div className="form-row">
             <div className="form-group">
               <label className="form-label">From</label>
@@ -102,6 +129,20 @@ export default function Home({ onResults }) {
               <label className="form-label">To</label>
               <input className="form-input" placeholder="e.g. IST" value={form.destination} onChange={set("destination")} maxLength={3} style={{ textTransform: "uppercase" }} />
             </div>
+            {isMultiCity && (
+              <div className="form-group">
+                <label className="form-label">Return from</label>
+                <input
+                  className="form-input"
+                  placeholder="e.g. CDG"
+                  value={form.return_origin}
+                  onChange={set("return_origin")}
+                  maxLength={3}
+                  style={{ textTransform: "uppercase" }}
+                  title="Airport you'll fly home from at the end of your trip"
+                />
+              </div>
+            )}
             <div className="form-group home__pax-group">
               <label className="form-label">Passengers</label>
               <select className="form-select" value={form.passengers} onChange={set("passengers")}>

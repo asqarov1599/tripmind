@@ -32,21 +32,18 @@ func GenerateHandler(c *gin.Context) {
 		return
 	}
 
-	// Fetch search from DB
 	search, err := database.GetSearch(req.SearchID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Search session not found"})
 		return
 	}
 
-	// Fetch cached itinerary data
 	itinerary, err := database.GetItineraryBySearchID(req.SearchID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Itinerary data not found"})
 		return
 	}
 
-	// Parse flights + hotels from cached JSON
 	var flights []services.Flight
 	var hotels []services.Hotel
 
@@ -59,7 +56,6 @@ func GenerateHandler(c *gin.Context) {
 		return
 	}
 
-	// Bounds-check the selected indices
 	if req.SelectedFlightIndex < 0 || req.SelectedFlightIndex >= len(flights) {
 		req.SelectedFlightIndex = 0
 	}
@@ -73,9 +69,16 @@ func GenerateHandler(c *gin.Context) {
 	depDate, _ := time.Parse("2006-01-02", search.DepartureDate)
 	retDate, _ := time.Parse("2006-01-02", search.ReturnDate)
 	numNights := int(retDate.Sub(depDate).Hours() / 24)
-	totalCost := selectedFlight.Price + selectedHotel.Price*float64(numNights)
 
-	// Generate PDF bytes (no filesystem — stored in PostgreSQL)
+	passengers := search.Passengers
+	if passengers <= 0 {
+		passengers = 1
+	}
+
+	// Total = (flight price per person × passengers) + (hotel per night × nights)
+	// Flight price from Amadeus is already the full round-trip price per person.
+	totalCost := selectedFlight.Price*float64(passengers) + selectedHotel.Price*float64(numNights)
+
 	pdfData := services.PDFData{
 		TravelerName:  req.TravelerName,
 		Origin:        search.Origin,
@@ -85,6 +88,7 @@ func GenerateHandler(c *gin.Context) {
 		Flight:        selectedFlight,
 		Hotel:         selectedHotel,
 		NumNights:     numNights,
+		Passengers:    passengers,
 		TotalCost:     totalCost,
 		AISummary:     itinerary.AISummary,
 	}
@@ -96,7 +100,6 @@ func GenerateHandler(c *gin.Context) {
 		return
 	}
 
-	// Save new itinerary record with PDF bytes
 	newID := uuid.New().String()
 	newItin := &database.Itinerary{
 		ID:           newID,

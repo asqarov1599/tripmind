@@ -198,6 +198,83 @@ func (c *AmadeusClient) SearchFlights(origin, destination, departureDate, return
 	return parseFlightOffers(body)
 }
 
+// SearchFlightsMultiCity fetches two one-way flights and combines them into round-trip-style Flight structs.
+// outboundOrigin→outboundDest on departureDate, returnOrigin→returnDest on returnDate.
+func (c *AmadeusClient) SearchFlightsMultiCity(
+	outboundOrigin, outboundDest,
+	returnOrigin, returnDest,
+	departureDate, returnDate string,
+	adults int,
+) ([]Flight, error) {
+	if c.clientID == "" {
+		return nil, fmt.Errorf("amadeus not configured")
+	}
+
+	// Fetch both legs in parallel
+	type legResult struct {
+		flights []Flight
+		err     error
+	}
+	outCh := make(chan legResult, 1)
+	retCh := make(chan legResult, 1)
+
+	go func() {
+		path := fmt.Sprintf(
+			"/v2/shopping/flight-offers?originLocationCode=%s&destinationLocationCode=%s&departureDate=%s&adults=%d&max=6&currencyCode=USD&nonStop=false",
+			url.QueryEscape(outboundOrigin), url.QueryEscape(outboundDest),
+			url.QueryEscape(departureDate), adults,
+		)
+		body, err := c.doRequest("GET", path, nil)
+		if err != nil {
+			outCh <- legResult{nil, err}
+			return
+		}
+		flights, err := parseFlightOffers(body)
+		outCh <- legResult{flights, err}
+	}()
+
+	go func() {
+		path := fmt.Sprintf(
+			"/v2/shopping/flight-offers?originLocationCode=%s&destinationLocationCode=%s&departureDate=%s&adults=%d&max=6&currencyCode=USD&nonStop=false",
+			url.QueryEscape(returnOrigin), url.QueryEscape(returnDest),
+			url.QueryEscape(returnDate), adults,
+		)
+		body, err := c.doRequest("GET", path, nil)
+		if err != nil {
+			retCh <- legResult{nil, err}
+			return
+		}
+		flights, err := parseFlightOffers(body)
+		retCh <- legResult{flights, err}
+	}()
+
+	outResult := <-outCh
+	retResult := <-retCh
+
+	if outResult.err != nil {
+		return nil, fmt.Errorf("outbound flight search failed: %w", outResult.err)
+	}
+	if retResult.err != nil {
+		return nil, fmt.Errorf("return flight search failed: %w", retResult.err)
+	}
+
+	// Combine: pair each outbound with its closest-priced return
+	combined := make([]Flight, 0, len(outResult.flights))
+	for i, out := range outResult.flights {
+		ret := retResult.flights[0]
+		if i < len(retResult.flights) {
+			ret = retResult.flights[i]
+		}
+		out.Price = out.Price + ret.Price
+		out.ReturnDepartureTime = ret.DepartureTime
+		out.ReturnArrivalTime = ret.ArrivalTime
+		out.ReturnDuration = ret.Duration
+		out.ReturnStops = ret.Stops
+		combined = append(combined, out)
+	}
+	return combined, nil
+}
+
 type amadeusFlightOffersResponse struct {
 	Data []amadeusFlightOffer `json:"data"`
 }
@@ -629,6 +706,32 @@ func GenerateFlightsFallback(origin, destination, departureDate, returnDate stri
 	return flights
 }
 
+// GenerateMultiCityFallback generates flights where the return leg departs from a different city.
+// For standard round-trips (returnOrigin == destination), it delegates to GenerateFlightsFallback.
+func GenerateMultiCityFallback(outOrigin, outDest, retOrigin, retDest, departureDate, returnDate string) []Flight {
+	if retOrigin == outDest {
+		return GenerateFlightsFallback(outOrigin, outDest, departureDate, returnDate)
+	}
+	// Build outbound and return independently, then combine
+	outFlights := GenerateFlightsFallback(outOrigin, outDest, departureDate, returnDate)
+	retFlights := GenerateFlightsFallback(retOrigin, retDest, returnDate, returnDate)
+
+	combined := make([]Flight, 0, len(outFlights))
+	for i, out := range outFlights {
+		ret := retFlights[0]
+		if i < len(retFlights) {
+			ret = retFlights[i]
+		}
+		out.Price = out.Price + ret.Price
+		out.ReturnDepartureTime = ret.DepartureTime
+		out.ReturnArrivalTime = ret.ArrivalTime
+		out.ReturnDuration = ret.Duration
+		out.ReturnStops = ret.Stops
+		combined = append(combined, out)
+	}
+	return combined
+}
+
 func estimateRoute(origin, destination string) routeData {
 	type region struct{ lat, lon float64 }
 	regions := map[byte]region{
@@ -814,7 +917,7 @@ func GenerateHotelsFallback(destination string) []Hotel {
 
 // ─── Smart Built-in AI Summary ────────────────────────────────────────────────
 
-func SmartFallbackRecommendation(budget float64, origin, destination, departureDate, returnDate string, passengers int, flights []Flight, hotels []Hotel) string {
+func SmartFallbackRecommendation(budget float64, origin, destination, departureDate, returnDate string, passengers int, flights []Flight, hotels []Hotel, returnOrigin string) string {
 	if len(flights) == 0 || len(hotels) == 0 {
 		return "Unable to provide recommendations — no flight or hotel data available."
 	}
@@ -844,6 +947,7 @@ func SmartFallbackRecommendation(budget float64, origin, destination, departureD
 		if h.Rating/h.Price > bestHotel.Rating/bestHotel.Price { bestHotel = h }
 	}
 
+	// Flight price is per-person round-trip; multiply by passengers for total flight cost
 	totalBestValue := bestFlight.Price*float64(passengers) + bestHotel.Price*float64(numNights)
 	totalBudget := cheapest.Price*float64(passengers) + budgetHotel.Price*float64(numNights)
 	totalLuxury := premium.Price*float64(passengers) + luxuryHotel.Price*float64(numNights)
@@ -863,19 +967,31 @@ func SmartFallbackRecommendation(budget float64, origin, destination, departureD
 	directLabel := "non-stop"
 	if bestFlight.Stops > 0 { directLabel = fmt.Sprintf("%d-stop", bestFlight.Stops) }
 
+	routeDesc := fmt.Sprintf("%s→%s", origin, destination)
+	if returnOrigin != "" && returnOrigin != destination {
+		routeDesc = fmt.Sprintf("%s→%s, returning %s→%s (multi-city)", origin, destination, returnOrigin, origin)
+	}
+
+	highlights := DestinationHighlights(destination)
+	highlightNote := ""
+	if highlights != "" {
+		highlightNote = "\n\n🗺 What to see in " + destination + ":\n" + highlights
+	}
+
 	return fmt.Sprintf(
-		"✈ Flight: **%s** at $%.0f/person — a %s flight (%s) offering the best balance of price and convenience for your %s→%s trip departing %s, returning %s.\n\n"+
+		"✈ Flight: **%s** at $%.0f/person — a %s flight (%s) offering the best balance of price and convenience for your %s trip departing %s, returning %s.\n\n"+
 			"🏨 Hotel: **%s** at $%.0f/night in %s (★%.1f) is your best value stay. With %d night(s) this adds $%.0f to your total.\n\n"+
 			"💰 Budget Summary: Best-value combo comes to approximately **$%.0f** for %d passenger(s) — %s your $%.0f budget. "+
-			"Budget option: %s + %s ≈ $%.0f. Premium option: %s + %s ≈ $%.0f.",
+			"Budget option: %s + %s ≈ $%.0f. Premium option: %s + %s ≈ $%.0f.%s",
 		bestFlight.Airline, bestFlight.Price,
 		directLabel, bestFlight.Duration,
-		origin, destination, depFormatted, retFormatted,
+		routeDesc, depFormatted, retFormatted,
 		bestHotel.Name, bestHotel.Price, bestHotel.Location, bestHotel.Rating,
 		numNights, bestHotel.Price*float64(numNights),
 		totalBestValue, passengers, budgetStatus, budget,
 		cheapest.Airline, budgetHotel.Name, totalBudget,
 		premium.Airline, luxuryHotel.Name, totalLuxury,
+		highlightNote,
 	)
 }
 
@@ -901,6 +1017,43 @@ func FallbackRecommendation(budget float64, flights []Flight, hotels []Hotel, nu
 		cheapestFlight.Airline, cheapestFlight.Price,
 		bestValueHotel.Name, bestValueHotel.Price, bestValueHotel.Rating,
 		withinBudget)
+}
+
+// DestinationHighlights returns a short curated list of must-see spots for popular destinations.
+// Returns empty string for unknown cities — callers should skip the section entirely.
+func DestinationHighlights(destination string) string {
+	highlights := map[string]string{
+		"IST": "Grand Bazaar & Spice Market · Hagia Sophia · Topkapi Palace · Bosphorus cruise · Galata Tower · Karaköy waterfront",
+		"DXB": "Dubai Frame & Burj Khalifa · Desert safari · Gold & Spice Souks · Palm Jumeirah · Dubai Creek dhow dinner",
+		"CDG": "Eiffel Tower & Champs-Élysées · Louvre Museum · Montmartre & Sacré-Cœur · Seine river cruise · Versailles day trip",
+		"PAR": "Eiffel Tower & Champs-Élysées · Louvre Museum · Montmartre & Sacré-Cœur · Seine river cruise · Versailles day trip",
+		"LHR": "Tower of London & Tower Bridge · British Museum · Notting Hill · Covent Garden · Greenwich & the Cutty Sark",
+		"LON": "Tower of London & Tower Bridge · British Museum · Notting Hill · Covent Garden · Greenwich & the Cutty Sark",
+		"FRA": "Römer & old town · Städel Museum · Sachsenhausen cider pubs · Palmengarten · Rhine day trip",
+		"BER": "Brandenburg Gate & Reichstag · East Side Gallery · Museum Island · Charlottenburg Palace · Hackescher Markt",
+		"AMS": "Rijksmuseum & Van Gogh Museum · Anne Frank House · Jordaan canal walk · Heineken Experience · Keukenhof (spring)",
+		"BCN": "La Sagrada Família · Park Güell · Gothic Quarter · La Boqueria · Barceloneta beach",
+		"MAD": "Prado & Reina Sofía museums · Retiro Park · Gran Vía shopping · Royal Palace · El Rastro flea market",
+		"FCO": "Colosseum & Roman Forum · Vatican & Sistine Chapel · Trevi Fountain · Trastevere neighbourhood · Borghese Gallery",
+		"NRT": "Senso-ji Temple · Shibuya crossing · teamLab Planets · Shinjuku Gyoen · day trip to Nikko or Kyoto",
+		"TYO": "Senso-ji Temple · Shibuya crossing · teamLab Planets · Shinjuku Gyoen · day trip to Nikko or Kyoto",
+		"BKK": "Grand Palace & Wat Pho · Chatuchak weekend market · Chao Phraya river temples · Khao San Road · day trip to Ayutthaya",
+		"SIN": "Marina Bay Sands rooftop · Gardens by the Bay · Hawker Centre food trail · Sentosa Island · Little India & Chinatown",
+		"JFK": "Central Park & The Metropolitan · Brooklyn Bridge & DUMBO · High Line · MoMA · Statue of Liberty ferry",
+		"NYC": "Central Park & The Metropolitan · Brooklyn Bridge & DUMBO · High Line · MoMA · Statue of Liberty ferry",
+		"BUD": "Buda Castle & Fisherman's Bastion · Hungarian Parliament tour · Great Market Hall · Széchenyi Thermal Bath · Danube evening cruise",
+		"TAS": "Chorsu Bazaar · Khast Imom complex · Amir Timur Square · State Museum of History · Tashkent metro art tour",
+		"VIE": "Schönbrunn Palace · Kunsthistorisches Museum · Naschmarkt · St. Stephen's Cathedral · Vienna State Opera",
+		"PRG": "Prague Castle & St. Vitus · Charles Bridge · Old Town Square & Astronomical Clock · Josefov Jewish Quarter · day trip to Český Krumlov",
+		"WAW": "Old Town & Royal Castle · Łazienki Park · POLIN Museum · Neon Museum · Praga district street art",
+		"ATH": "Acropolis & Parthenon · National Archaeological Museum · Monastiraki flea market · Cape Sounion day trip · Piraeus sunset",
+		"LIS": "Belém Tower & Jerónimos Monastery · Alfama tram ride · LX Factory · Sintra palaces day trip · time out market",
+		"CPH": "Nyhavn canal · Tivoli Gardens · The Little Mermaid · Strøget shopping · day trip to Kronborg Castle",
+	}
+	if h, ok := highlights[destination]; ok {
+		return h
+	}
+	return ""
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

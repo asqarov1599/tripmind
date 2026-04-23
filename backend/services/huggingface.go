@@ -65,12 +65,13 @@ func (c *AIClient) GetRecommendations(
 	flights []Flight,
 	hotels []Hotel,
 	isFallbackData bool,
+	returnOrigin string,
 ) (string, error) {
 	if c.apiKey == "" {
 		return "", fmt.Errorf("huggingface API key not configured")
 	}
 
-	prompt := buildPrompt(budget, origin, destination, departureDate, returnDate, passengers, flights, hotels, isFallbackData)
+	prompt := buildPrompt(budget, origin, destination, departureDate, returnDate, passengers, flights, hotels, isFallbackData, returnOrigin)
 
 	reqBody := hfRequest{
 		Inputs: prompt,
@@ -130,18 +131,24 @@ func buildPrompt(
 	flights []Flight,
 	hotels []Hotel,
 	isFallbackData bool,
+	returnOrigin string,
 ) string {
 	dataNote := ""
 	if isFallbackData {
 		dataNote = " Note: prices are estimated — real-time data unavailable."
 	}
 
+	routeDesc := fmt.Sprintf("%s → %s", origin, destination)
+	if returnOrigin != "" && returnOrigin != destination {
+		routeDesc = fmt.Sprintf("%s → %s (returning from %s → %s, multi-city)", origin, destination, returnOrigin, origin)
+	}
+
 	prompt := fmt.Sprintf(`[INST] You are a helpful travel assistant. Analyze these options and give brief, honest recommendations.
 
-Trip: %s → %s | %s to %s | %d passenger(s) | Budget: $%.0f%s
+Trip: %s | %s to %s | %d passenger(s) | Budget: $%.0f%s
 
-Flights available:
-`, origin, destination, departureDate, returnDate, passengers, budget, dataNote)
+Flights available (price is per person, round-trip total):
+`, routeDesc, departureDate, returnDate, passengers, budget, dataNote)
 
 	for i, f := range flights {
 		if i >= 5 {
@@ -158,8 +165,13 @@ Flights available:
 		prompt += fmt.Sprintf("  %d. %s — $%.0f/night (★%.1f) %s\n", i+1, h.Name, h.Price, h.Rating, h.Location)
 	}
 
+	highlights := DestinationHighlights(destination)
+	if highlights != "" {
+		prompt += fmt.Sprintf("\nTop things to do in %s: %s\n", destination, highlights)
+	}
+
 	prompt += `
-In 150 words or fewer, recommend the best flight and hotel that fit the budget. Explain why briefly. Use sections: "✈ Flight:" and "🏨 Hotel:". Be direct. [/INST]`
+In 150 words or fewer, recommend the best flight and hotel that fit the budget. Explain why briefly. Use sections: "✈ Flight:" and "🏨 Hotel:". If space allows, add a "🗺 Highlights:" line with 2-3 must-see spots. Be direct. [/INST]`
 
 	return prompt
 }

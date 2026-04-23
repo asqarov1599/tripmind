@@ -20,14 +20,17 @@ type SearchRequest struct {
 	ReturnDate    string  `json:"return_date" binding:"required"`
 	Budget        float64 `json:"budget" binding:"required,gt=0"`
 	Passengers    int     `json:"passengers"`
+	// Optional: if set, the return flight departs from a different city (multi-city)
+	ReturnOrigin string `json:"return_origin,omitempty"`
 }
 
 type SearchResponse struct {
-	SearchID  string           `json:"search_id"`
-	Flights   []services.Flight `json:"flights"`
-	Hotels    []services.Hotel  `json:"hotels"`
-	AISummary string           `json:"ai_summary"`
-	Source    string           `json:"source"` // "live" or "estimated"
+	SearchID     string            `json:"search_id"`
+	Flights      []services.Flight `json:"flights"`
+	Hotels       []services.Hotel  `json:"hotels"`
+	AISummary    string            `json:"ai_summary"`
+	Source       string            `json:"source"` // "live" or "estimated"
+	ReturnOrigin string            `json:"return_origin,omitempty"`
 }
 
 func SearchHandler(c *gin.Context) {
@@ -39,18 +42,21 @@ func SearchHandler(c *gin.Context) {
 
 	req.Origin = strings.ToUpper(strings.TrimSpace(req.Origin))
 	req.Destination = strings.ToUpper(strings.TrimSpace(req.Destination))
+	req.ReturnOrigin = strings.ToUpper(strings.TrimSpace(req.ReturnOrigin))
 
 	if req.Passengers <= 0 {
 		req.Passengers = 1
 	}
 
-	// Validate airport code length
 	if len(req.Origin) != 3 || len(req.Destination) != 3 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Airport codes must be exactly 3 characters (e.g. LHR, JFK)"})
 		return
 	}
+	if req.ReturnOrigin != "" && len(req.ReturnOrigin) != 3 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Return origin airport code must be exactly 3 characters"})
+		return
+	}
 
-	// Validate dates
 	depDate, err := time.Parse("2006-01-02", req.DepartureDate)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid departure date format. Use YYYY-MM-DD"})
@@ -68,7 +74,12 @@ func SearchHandler(c *gin.Context) {
 		return
 	}
 
-	//numNights := int(retDate.Sub(depDate).Hours() / 24)
+	// For multi-city, returnOrigin is the departure airport for the return leg.
+	// If not set, falls back to destination (standard round-trip).
+	returnOrigin := req.ReturnOrigin
+	if returnOrigin == "" {
+		returnOrigin = req.Destination
+	}
 
 	// ── Try Amadeus live data ──────────────────────────────────────────────────
 	var flights []services.Flight
@@ -78,31 +89,42 @@ func SearchHandler(c *gin.Context) {
 
 	amadeusClient := services.GetAmadeusClient()
 
-	// Flights
 	if amadeusClient != nil {
-		liveFlights, err := amadeusClient.SearchFlights(
-			req.Origin, req.Destination,
-			req.DepartureDate, req.ReturnDate,
-			req.Passengers,
-		)
-		if err != nil {
-			log.Printf("⚠️  Amadeus flight search failed: %v — using fallback", err)
-			flights = services.GenerateFlightsFallback(req.Origin, req.Destination, req.DepartureDate, req.ReturnDate)
+		var liveFlights []services.Flight
+		var flightErr error
+
+		if returnOrigin != req.Destination {
+			liveFlights, flightErr = amadeusClient.SearchFlightsMultiCity(
+				req.Origin, req.Destination,
+				returnOrigin, req.Origin,
+				req.DepartureDate, req.ReturnDate,
+				req.Passengers,
+			)
+		} else {
+			liveFlights, flightErr = amadeusClient.SearchFlights(
+				req.Origin, req.Destination,
+				req.DepartureDate, req.ReturnDate,
+				req.Passengers,
+			)
+		}
+
+		if flightErr != nil {
+			log.Printf("⚠️  Amadeus flight search failed: %v — using fallback", flightErr)
+			flights = services.GenerateMultiCityFallback(req.Origin, req.Destination, returnOrigin, req.Origin, req.DepartureDate, req.ReturnDate)
 			isFallback = true
 		} else if len(liveFlights) == 0 {
 			log.Println("⚠️  Amadeus returned 0 flights — using fallback")
-			flights = services.GenerateFlightsFallback(req.Origin, req.Destination, req.DepartureDate, req.ReturnDate)
+			flights = services.GenerateMultiCityFallback(req.Origin, req.Destination, returnOrigin, req.Origin, req.DepartureDate, req.ReturnDate)
 			isFallback = true
 		} else {
 			flights = liveFlights
 			log.Printf("✅ Amadeus: %d live flights found", len(flights))
 		}
 	} else {
-		flights = services.GenerateFlightsFallback(req.Origin, req.Destination, req.DepartureDate, req.ReturnDate)
+		flights = services.GenerateMultiCityFallback(req.Origin, req.Destination, returnOrigin, req.Origin, req.DepartureDate, req.ReturnDate)
 		isFallback = true
 	}
 
-	// Hotels
 	if amadeusClient != nil && !isFallback {
 		liveHotels, err := amadeusClient.SearchHotels(
 			req.Destination,
@@ -139,6 +161,7 @@ func SearchHandler(c *gin.Context) {
 		req.Budget, req.Origin, req.Destination,
 		req.DepartureDate, req.ReturnDate,
 		req.Passengers, flights, hotels, isFallback,
+		returnOrigin,
 	)
 	if err != nil {
 		log.Printf("⚠️  AI recommendation failed: %v — using smart built-in summary", err)
@@ -146,6 +169,7 @@ func SearchHandler(c *gin.Context) {
 			req.Budget, req.Origin, req.Destination,
 			req.DepartureDate, req.ReturnDate,
 			req.Passengers, flights, hotels,
+			returnOrigin,
 		)
 	}
 
@@ -182,10 +206,11 @@ func SearchHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, SearchResponse{
-		SearchID:  searchID,
-		Flights:   flights,
-		Hotels:    hotels,
-		AISummary: aiSummary,
-		Source:    source,
+		SearchID:     searchID,
+		Flights:      flights,
+		Hotels:       hotels,
+		AISummary:    aiSummary,
+		Source:       source,
+		ReturnOrigin: req.ReturnOrigin,
 	})
 }

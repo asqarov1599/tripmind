@@ -167,13 +167,15 @@ export default function Results({ data, searchForm, onBack }) {
   const depD   = new Date(searchForm.departure_date + "T00:00:00");
   const retD   = new Date(searchForm.return_date    + "T00:00:00");
   const nights = Math.round((retD - depD) / 86400000);
+  const passengers = Number(searchForm.passengers) || 1;
 
   const flight = data.flights?.[selFlight];
   const hotel  = data.hotels?.[selHotel];
 
   const flightPrice = flight ? Number(flight.price) || 0 : 0;
   const hotelPrice  = hotel  ? sanitizeHotelPrice(hotel.price) || 0 : 0;
-  const totalCost   = flightPrice + hotelPrice * nights;
+  // Flight price is per-person round-trip; multiply by passengers for real total
+  const totalCost   = flightPrice * passengers + hotelPrice * nights;
 
   const handleGenerate = async () => {
     setGenError(null);
@@ -206,6 +208,12 @@ export default function Results({ data, searchForm, onBack }) {
           <span className="route-chip">{searchForm.origin?.toUpperCase()}</span>
           <span className="route-arrow"><ArrowRight size={16} /></span>
           <span className="route-chip">{searchForm.destination?.toUpperCase()}</span>
+          {data.return_origin && (
+            <>
+              <span className="route-arrow" style={{ fontSize: 11, color: "var(--text-muted)" }}>↩ from</span>
+              <span className="route-chip">{data.return_origin}</span>
+            </>
+          )}
           <span className="route-meta">
             {fmtDate(searchForm.departure_date)} – {fmtDate(searchForm.return_date)}
             &nbsp;·&nbsp;{searchForm.passengers} pax
@@ -269,7 +277,7 @@ export default function Results({ data, searchForm, onBack }) {
               Flight
             </span>
             <span className="confirm-panel__row-value">
-              {flight?.airline} — ${fmtPrice(flightPrice)}/person
+              {flight?.airline} — ${fmtPrice(flightPrice)}/person × {passengers} = ${fmtPrice(flightPrice * passengers)}
             </span>
           </div>
           <div className="confirm-panel__row">

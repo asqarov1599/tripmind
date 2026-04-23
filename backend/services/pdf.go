@@ -12,11 +12,13 @@ type PDFData struct {
 	TravelerName  string
 	Origin        string
 	Destination   string
+	ReturnOrigin  string // if set, return flight departs from here (multi-city)
 	DepartureDate string
 	ReturnDate    string
 	Flight        Flight
 	Hotel         Hotel
 	NumNights     int
+	Passengers    int
 	TotalCost     float64
 	AISummary     string
 	IsEstimated   bool // true when Amadeus is not configured
@@ -103,10 +105,22 @@ func GeneratePDFBytes(data PDFData) ([]byte, error) {
 
 	// ── Trip Overview ─────────────────────────────────────────
 	sectionHeader("Trip Overview")
-	row("Route", fmt.Sprintf("%s → %s → %s", data.Origin, data.Destination, data.Origin))
+	returnOriginLabel := data.Destination
+	if data.ReturnOrigin != "" && data.ReturnOrigin != data.Destination {
+		returnOriginLabel = data.ReturnOrigin
+		row("Route", fmt.Sprintf("%s → %s (outbound) · %s → %s (return)", data.Origin, data.Destination, returnOriginLabel, data.Origin))
+		row("Trip Type", "Multi-City")
+	} else {
+		row("Route", fmt.Sprintf("%s → %s → %s", data.Origin, data.Destination, data.Origin))
+	}
 	row("Departure", fmtDateReadable(data.DepartureDate))
 	row("Return", fmtDateReadable(data.ReturnDate))
 	row("Duration", fmt.Sprintf("%d nights", data.NumNights))
+	passengers := data.Passengers
+	if passengers <= 0 {
+		passengers = 1
+	}
+	row("Passengers", fmt.Sprintf("%d", passengers))
 	pdf.Ln(4)
 
 	// ── Selected Flight ───────────────────────────────────────
@@ -136,6 +150,7 @@ func GeneratePDFBytes(data PDFData) ([]byte, error) {
 	// ── Cost Summary ──────────────────────────────────────────
 	sectionHeader("Cost Estimate")
 	row("Flight (per person)", fmt.Sprintf("$%.0f", data.Flight.Price))
+	row(fmt.Sprintf("Flight × %d passengers", passengers), fmt.Sprintf("$%.0f", data.Flight.Price*float64(passengers)))
 	row("Hotel total", fmt.Sprintf("$%.0f", data.Hotel.Price*float64(data.NumNights)))
 
 	pdf.SetFillColor(212, 168, 67)
@@ -152,6 +167,16 @@ func GeneratePDFBytes(data PDFData) ([]byte, error) {
 		pdf.SetFont("Helvetica", "", 10)
 		pdf.SetTextColor(40, 40, 40)
 		pdf.MultiCell(170, 5, data.AISummary, "", "L", false)
+		pdf.Ln(4)
+	}
+
+	// ── Destination Highlights ────────────────────────────────
+	highlights := DestinationHighlights(data.Destination)
+	if highlights != "" {
+		sectionHeader("Things to Do in " + data.Destination)
+		pdf.SetFont("Helvetica", "", 10)
+		pdf.SetTextColor(40, 40, 40)
+		pdf.MultiCell(170, 6, highlights, "", "L", false)
 		pdf.Ln(4)
 	}
 
